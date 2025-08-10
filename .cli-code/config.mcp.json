@@ -1,0 +1,7 @@
+{
+  "p1": {
+    "name": "p1",
+    "command": "tool",
+    "enabled": true
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "p1": {
+    "name": "p1",
+    "description": "Migrated server: p1",
+    "transport": {
+      "type": "stdio",
+      "command": "tool"
+    },
+    "scope": "user",
+    "enabled": true,
+    "autoReconnect": true,
+    "timeout": 30000
+  },
+  "project-server": {
+    "name": "project-server",
+    "transport": {
+      "type": "stdio",
+      "command": "node"
+    },
+    "scope": "project",
+    "enabled": true,
+    "autoReconnect": true,
+    "timeout": 30000
+  },
+  "test-server": {
+    "name": "test-server",
+    "transport": {
+      "type": "stdio",
+      "command": "node"
+    },
+    "scope": "project",
+    "enabled": true,
+    "autoReconnect": true,
+    "timeout": 30000
+  }
+}

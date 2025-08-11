@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Box, Text } from 'ink';
-import { ThemeConfig, getAgentColor } from '../themes.js';
-import { Table, SelectInput, Modal } from '../components/index.js';
+import { Box, Text, SelectInput } from '../framework/index.js';
+import { Table, Modal } from '../components/index.js';
+import { getAgentColor } from '../themes/index.js';
+import { useTheme } from '../themeContext.js';
 
 interface Agent {
   id: string;
@@ -15,7 +16,6 @@ interface Agent {
 }
 
 interface AgentScreenProps {
-  theme: ThemeConfig;
   agents: Agent[];
   currentAgent: string;
   onAgentSelect: (agentId: string) => void;
@@ -25,7 +25,6 @@ interface AgentScreenProps {
 }
 
 export const AgentScreen: React.FC<AgentScreenProps> = ({
-  theme,
   agents,
   currentAgent,
   onAgentSelect,
@@ -33,6 +32,7 @@ export const AgentScreen: React.FC<AgentScreenProps> = ({
   onAgentDelete,
   onBack
 }) => {
+  const theme = useTheme();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
 
@@ -53,10 +53,10 @@ export const AgentScreen: React.FC<AgentScreenProps> = ({
   return (
     <Box flexDirection="column" height="100%">
       {/* Header */}
-      <Box borderStyle="round" borderColor={theme.colors.border} padding={1} marginBottom={1}>
-        <Text color={theme.colors.primary} bold>Agent Management</Text>
+      <Box borderStyle="round" borderColor="border" padding={1} marginBottom={1}>
+        <Text color="primary" bold>Agent Management</Text>
         <Box flexGrow={1} justifyContent="flex-end">
-          <Text color={theme.colors.textSecondary}>
+          <Text color="textSecondary">
             Current: <Text color={getAgentColor(currentAgent, theme)}>{currentAgent}</Text>
           </Text>
         </Box>
@@ -65,7 +65,7 @@ export const AgentScreen: React.FC<AgentScreenProps> = ({
       {/* Agent List */}
       <Box flexDirection="column" flexGrow={1} padding={1}>
         <Box marginBottom={2}>
-          <Text color={theme.colors.text} bold>Available Agents</Text>
+          <Text color="text" bold>Available Agents</Text>
         </Box>
 
         <Table
@@ -82,19 +82,19 @@ export const AgentScreen: React.FC<AgentScreenProps> = ({
 
         {/* Agent Details */}
         {selectedAgent && (
-          <Box marginTop={2} padding={1} borderStyle="round" borderColor={theme.colors.border}>
+          <Box marginTop={2} padding={1} borderStyle="round" borderColor="border">
             {(() => {
               const agent = agents.find(a => a.id === selectedAgent);
               if (!agent) return null;
-              
+
               return (
                 <Box flexDirection="column">
-                  <Text color={theme.colors.primary} bold>{agent.name}</Text>
-                  <Text color={theme.colors.textSecondary}>Type: {agent.type}</Text>
-                  <Text color={theme.colors.textSecondary}>When to use: {agent.whenToUse}</Text>
+                  <Text color="primary" bold>{agent.name}</Text>
+                  <Text color="textSecondary">Type: {agent.type}</Text>
+                  <Text color="textSecondary">When to use: {agent.whenToUse}</Text>
                   <Box marginTop={1}>
-                    <Text color={theme.colors.text}>System Prompt:</Text>
-                    <Text color={theme.colors.textSecondary}>
+                    <Text color="text">System Prompt:</Text>
+                    <Text color="textSecondary">
                       {agent.systemPrompt.slice(0, 200)}...
                     </Text>
                   </Box>
@@ -108,14 +108,14 @@ export const AgentScreen: React.FC<AgentScreenProps> = ({
       {/* Actions */}
       <Box justifyContent="space-between" padding={1} marginTop={1}>
         <Box>
-          <Text color={theme.colors.success}>N</Text>
-          <Text color={theme.colors.textSecondary}> New Agent  </Text>
-          <Text color={theme.colors.info}>S</Text>
-          <Text color={theme.colors.textSecondary}> Switch  </Text>
-          <Text color={theme.colors.error}>D</Text>
-          <Text color={theme.colors.textSecondary}> Delete</Text>
+          <Text color="success">N</Text>
+          <Text color="textSecondary"> New Agent  </Text>
+          <Text color="info">S</Text>
+          <Text color="textSecondary"> Switch  </Text>
+          <Text color="error">D</Text>
+          <Text color="textSecondary"> Delete</Text>
         </Box>
-        <Text color={theme.colors.textSecondary}>Press Esc to go back</Text>
+        <Text color="textSecondary">Press Esc to go back</Text>
       </Box>
 
       {/* Create Agent Modal */}
@@ -129,12 +129,11 @@ export const AgentScreen: React.FC<AgentScreenProps> = ({
       >
         <Box flexDirection="column">
           <Box marginBottom={1}>
-            <Text color={theme.colors.text} bold>Agent Type:</Text>
+            <Text color="text" bold>Agent Type:</Text>
           </Box>
           <SelectInput
             options={agentTypeOptions}
             onSelect={(value) => {
-              // Handle agent creation
               onAgentCreate({
                 type: value as 'user' | 'system' | 'generated',
                 name: `New ${value} Agent`,
@@ -144,11 +143,10 @@ export const AgentScreen: React.FC<AgentScreenProps> = ({
               });
               setShowCreateModal(false);
             }}
-            selectedColor={theme.colors.primary}
           />
 
           <Box marginTop={2}>
-            <Text color={theme.colors.textSecondary}>
+            <Text color="textSecondary">
               You can customize the agent after creation
             </Text>
           </Box>
@@ -156,18 +154,18 @@ export const AgentScreen: React.FC<AgentScreenProps> = ({
       </Modal>
 
       {/* Built-in Agents Info */}
-      <Box marginTop={1} padding={1} borderStyle="round" borderColor={theme.colors.info}>
-        <Text color={theme.colors.info} bold>Built-in Agents:</Text>
-        <Text color={theme.colors.text}>
+      <Box marginTop={1} padding={1} borderStyle="round" borderColor="info">
+        <Text color="info" bold>Built-in Agents:</Text>
+        <Text color="text">
           • General Purpose: Default coding assistant
         </Text>
-        <Text color={theme.colors.text}>
+        <Text color="text">
           • Code Reviewer: Specialized in code analysis
         </Text>
-        <Text color={theme.colors.text}>
+        <Text color="text">
           • Documentation: Focused on writing docs
         </Text>
-        <Text color={theme.colors.text}>
+        <Text color="text">
           • Debug Assistant: Specialized in debugging
         </Text>
       </Box>

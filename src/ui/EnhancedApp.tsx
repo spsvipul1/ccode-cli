@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Box, Text, useInput, useApp } from 'ink';
-import { ThemeConfig, getTheme, THEMES } from './themes.js';
+import { useInput, useApp } from 'ink';
+import { Box, Text } from './framework/index.js';
+import { Theme, resolveTheme, themes } from './themes/index.js';
+import { ThemeProvider } from './themeContext.js';
 import { ConversationScreen } from './screens/ConversationScreen.js';
 import { ConfigScreen } from './screens/ConfigScreen.js';
 import { AgentScreen } from './screens/AgentScreen.js';
@@ -114,7 +116,7 @@ export const EnhancedApp: React.FC<{ autoChat?: boolean }> = ({ autoChat = true 
   }, [agentManager]);
 
   const { exit } = useApp();
-  const theme: ThemeConfig = getTheme(currentTheme);
+  const theme: Theme = resolveTheme(currentTheme);
 
   // Initialize chat on startup if autoChat is enabled
   useEffect(() => {
@@ -323,13 +325,13 @@ export const EnhancedApp: React.FC<{ autoChat?: boolean }> = ({ autoChat = true 
       setCurrentScreen('performance');
     } else if (cmd.startsWith('/theme ')) {
       const themeName = parts[1];
-      if (THEMES[themeName]) {
+      if (themes[themeName]) {
         setCurrentTheme(themeName);
         setConfig(prev => ({ ...prev, theme: themeName }));
         const message: Message = {
           id: Date.now().toString(),
           type: 'system',
-          content: `Theme changed to ${THEMES[themeName].name}`,
+          content: `Theme changed to ${themes[themeName].name}`,
           timestamp: new Date()
         };
         setMessages(prev => [...prev, message]);
@@ -503,7 +505,6 @@ export const EnhancedApp: React.FC<{ autoChat?: boolean }> = ({ autoChat = true 
       case 'config':
         return (
           <ConfigScreen
-            theme={theme}
             config={config}
             onConfigChange={handleConfigChange}
             onBack={() => setCurrentScreen('conversation')}
@@ -512,7 +513,6 @@ export const EnhancedApp: React.FC<{ autoChat?: boolean }> = ({ autoChat = true 
       case 'agents':
         return (
           <AgentScreen
-            theme={theme}
             agents={agents}
             currentAgent={currentAgent}
             onAgentSelect={handleAgentSelect}
@@ -524,9 +524,9 @@ export const EnhancedApp: React.FC<{ autoChat?: boolean }> = ({ autoChat = true 
       case 'help':
         return (
           <Box flexDirection="column" padding={2}>
-            <Text color={theme.colors.primary} bold>Claude Code Assistant - Help</Text>
+            <Text color="primary" bold>Claude Code Assistant - Help</Text>
             <Box marginTop={1}>
-              <Text color={theme.colors.text}>Available Commands:</Text>
+              <Text color="text">Available Commands:</Text>
             </Box>
             <Text>/config - Open configuration panel</Text>
             <Text>/agents - Manage agents</Text>
@@ -538,7 +538,7 @@ export const EnhancedApp: React.FC<{ autoChat?: boolean }> = ({ autoChat = true 
             <Text>/performance - Performance metrics</Text>
             <Text>/help - Show this help</Text>
             <Box marginTop={1}>
-              <Text color={theme.colors.textSecondary}>
+              <Text color="textSecondary">
                 Press Esc to return to conversation
               </Text>
             </Box>
@@ -547,22 +547,22 @@ export const EnhancedApp: React.FC<{ autoChat?: boolean }> = ({ autoChat = true 
       case 'diagnostics':
         return (
           <Box flexDirection="column" padding={2}>
-            <Text color={theme.colors.primary} bold>System Diagnostics</Text>
-            <Text color={theme.colors.success}>✓ LLM Client: Connected</Text>
-            <Text color={theme.colors.success}>✓ Tool Manager: {engine.getToolManager().listTools().length} tools loaded</Text>
-            <Text color={theme.colors.success}>✓ Permission System: Active</Text>
+            <Text color="primary" bold>System Diagnostics</Text>
+            <Text color="success">✓ LLM Client: Connected</Text>
+            <Text color="success">✓ Tool Manager: {engine.getToolManager().listTools().length} tools loaded</Text>
+            <Text color="success">✓ Permission System: Active</Text>
             {mcpManagerRef.current ? (
-              <Text color={theme.colors.text}>MCP Servers: {mcpManagerRef.current.getServerNames().length} configured, {mcpManagerRef.current.getConnectedServers().length} connected</Text>
+              <Text color="text">MCP Servers: {mcpManagerRef.current.getServerNames().length} configured, {mcpManagerRef.current.getConnectedServers().length} connected</Text>
             ) : (
-              <Text color={theme.colors.warning}>⚠ MCP Manager not initialized</Text>
+              <Text color="warning">⚠ MCP Manager not initialized</Text>
             )}
             {bgManagerRef.current ? (
-              <Text color={theme.colors.text}>Background Processes: {bgManagerRef.current.runningCount()} running</Text>
+              <Text color="text">Background Processes: {bgManagerRef.current.runningCount()} running</Text>
             ) : (
-              <Text color={theme.colors.warning}>⚠ Background Manager not initialized</Text>
+              <Text color="warning">⚠ Background Manager not initialized</Text>
             )}
             <Box marginTop={1}>
-              <Text color={theme.colors.textSecondary}>
+              <Text color="textSecondary">
                 Press Esc to return to conversation
               </Text>
             </Box>
@@ -571,13 +571,13 @@ export const EnhancedApp: React.FC<{ autoChat?: boolean }> = ({ autoChat = true 
       case 'performance':
         return (
           <Box flexDirection="column" padding={2}>
-            <Text color={theme.colors.primary} bold>Performance Metrics</Text>
-            <Text color={theme.colors.text}>Messages: {messages.length}</Text>
-            <Text color={theme.colors.text}>Current Agent: {currentAgent}</Text>
-            <Text color={theme.colors.text}>Theme: {theme.name}</Text>
-            <Text color={theme.colors.text}>Pending Approvals: {approvals.listPending().length}</Text>
+            <Text color="primary" bold>Performance Metrics</Text>
+            <Text color="text">Messages: {messages.length}</Text>
+            <Text color="text">Current Agent: {currentAgent}</Text>
+            <Text color="text">Theme: {theme.name}</Text>
+            <Text color="text">Pending Approvals: {approvals.listPending().length}</Text>
             <Box marginTop={1}>
-              <Text color={theme.colors.textSecondary}>
+              <Text color="textSecondary">
                 Press Esc to return to conversation
               </Text>
             </Box>
@@ -586,7 +586,6 @@ export const EnhancedApp: React.FC<{ autoChat?: boolean }> = ({ autoChat = true 
       default:
         return (
           <ConversationScreen
-            theme={theme}
             messages={messages}
             isLoading={isLoading}
             currentAgent={currentAgent}
@@ -598,17 +597,19 @@ export const EnhancedApp: React.FC<{ autoChat?: boolean }> = ({ autoChat = true 
   };
 
   return (
-    <Box flexDirection="column" height="100%" width="100%">
-      {renderScreen()}
-      
-      {/* Input area for conversation screen */}
-      {currentScreen === 'conversation' && (
-        <Box borderStyle="round" borderColor={theme.colors.border} padding={1}>
-          <Text color={theme.colors.primary}>❯ </Text>
-          <Text color={theme.colors.text}>{input}</Text>
-          <Text color={theme.colors.textSecondary}>█</Text>
-        </Box>
-      )}
-    </Box>
+    <ThemeProvider themeName={currentTheme}>
+      <Box flexDirection="column" height="100%" width="100%">
+        {renderScreen()}
+
+        {/* Input area for conversation screen */}
+        {currentScreen === 'conversation' && (
+          <Box borderStyle="round" borderColor="border" padding={1}>
+            <Text color="primary">❯ </Text>
+            <Text color="text">{input}</Text>
+            <Text color="textSecondary">█</Text>
+          </Box>
+        )}
+      </Box>
+    </ThemeProvider>
   );
 };

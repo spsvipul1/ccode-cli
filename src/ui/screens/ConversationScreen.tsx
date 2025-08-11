@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Text, useInput } from 'ink';
-import { ThemeConfig } from '../themes.js';
-import { ProgressBar, Spinner, DiffView } from '../components/index.js';
+import React, { useState } from 'react';
+import { Box, Text } from '../framework/index.js';
+import { useInput } from 'ink';
+import { Spinner } from '../components/index.js';
+import { useTheme } from '../themeContext.js';
 
 interface Message {
   id: string;
@@ -17,7 +18,6 @@ interface Message {
 }
 
 interface ConversationScreenProps {
-  theme: ThemeConfig;
   messages: Message[];
   isLoading: boolean;
   currentAgent: string;
@@ -26,13 +26,13 @@ interface ConversationScreenProps {
 }
 
 export const ConversationScreen: React.FC<ConversationScreenProps> = ({
-  theme,
   messages,
   isLoading,
   currentAgent,
   onInput,
   onCommand
 }) => {
+  const theme = useTheme();
   const [input, setInput] = useState('');
   const [showHelp, setShowHelp] = useState(false);
 
@@ -64,30 +64,30 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
   };
 
   const formatTimestamp = (date: Date): string => {
-    return date.toLocaleTimeString('en-US', { 
-      hour12: false, 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return date.toLocaleTimeString('en-US', {
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit'
     });
   };
 
   return (
     <Box flexDirection="column" height="100%">
       {/* Header */}
-      <Box borderStyle="round" borderColor={theme.colors.border} padding={1} marginBottom={1}>
+      <Box borderStyle="round" borderColor="border" padding={1} marginBottom={1}>
         <Box flexGrow={1}>
-          <Text color={theme.colors.primary} bold>
+          <Text color="primary" bold>
             Claude Code Assistant
           </Text>
         </Box>
         <Box>
-          <Text color={theme.colors.textSecondary}>
-            Agent: <Text color={theme.colors.agent.general}>{currentAgent}</Text>
+          <Text color="textSecondary">
+            Agent: <Text color="agent.general">{currentAgent}</Text>
           </Text>
         </Box>
         <Box marginLeft={2}>
-          <Text color={theme.colors.textSecondary}>
-            Theme: <Text color={theme.colors.primary}>{theme.name}</Text>
+          <Text color="textSecondary">
+            Theme: <Text color="primary">{theme.name}</Text>
           </Text>
         </Box>
       </Box>
@@ -99,7 +99,7 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
             {/* Message header */}
             <Box>
               <Text color={getMessageColor(message)} bold>
-                {message.type === 'user' ? '❯' : 
+                {message.type === 'user' ? '❯' :
                  message.type === 'assistant' ? '🤖' :
                  message.type === 'tool' ? '🔧' : '⚙️'}
               </Text>
@@ -110,13 +110,13 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
               </Box>
               {message.agent && (
                 <Box marginLeft={1}>
-                  <Text color={theme.colors.textSecondary}>
+                  <Text color="textSecondary">
                     @{message.agent}
                   </Text>
                 </Box>
               )}
               <Box marginLeft={1}>
-                <Text color={theme.colors.textSecondary}>
+                <Text color="textSecondary">
                   {formatTimestamp(message.timestamp)}
                 </Text>
               </Box>
@@ -125,12 +125,12 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
             {/* Tool call info */}
             {message.toolCall && (
               <Box marginLeft={2} marginY={1}>
-                <Text color={theme.colors.info}>
+                <Text color="info">
                   🔧 {message.toolCall.name}
                 </Text>
                 {message.toolCall.result && (
                   <Box marginLeft={1}>
-                    <Text color={theme.colors.success}>
+                    <Text color="success">
                       ✓
                     </Text>
                   </Box>
@@ -142,13 +142,13 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
             <Box marginLeft={2} flexDirection="column">
               {message.content.includes('```') ? (
                 // Code block rendering
-                <Box borderStyle="round" borderColor={theme.colors.border} padding={1}>
-                  <Text color={theme.colors.text}>
+                <Box borderStyle="round" borderColor="border" padding={1}>
+                  <Text color="text">
                     {message.content}
                   </Text>
                 </Box>
               ) : (
-                <Text color={theme.colors.text}>
+                <Text color="text">
                   {message.content}
                 </Text>
               )}
@@ -165,27 +165,27 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
       </Box>
 
       {/* Input area */}
-      <Box borderStyle="round" borderColor={theme.colors.border} padding={1}>
-        <Text color={theme.colors.primary}>❯ </Text>
-        <Text color={theme.colors.text}>{input}</Text>
-        <Text color={theme.colors.textSecondary}>█</Text>
+      <Box borderStyle="round" borderColor="border" padding={1}>
+        <Text color="primary">❯ </Text>
+        <Text color="text">{input}</Text>
+        <Text color="textSecondary">█</Text>
       </Box>
 
       {/* Help overlay */}
       {showHelp && (
-        <Box 
-          width={50} 
-          borderStyle="round" 
-          borderColor={theme.colors.primary}
+        <Box
+          width={50}
+          borderStyle="round"
+          borderColor="primary"
           padding={2}
         >
           <Box flexDirection="column">
-            <Text color={theme.colors.primary} bold>Keyboard Shortcuts</Text>
+            <Text color="primary" bold>Keyboard Shortcuts</Text>
             <Text>Enter - Send message/command</Text>
             <Text>Esc - Toggle this help</Text>
             <Text>Ctrl+C - Exit</Text>
             <Text></Text>
-            <Text color={theme.colors.info} bold>Slash Commands</Text>
+            <Text color="info" bold>Slash Commands</Text>
             <Text>/config - Configuration</Text>
             <Text>/theme - Change theme</Text>
             <Text>/agents - Manage agents</Text>
@@ -196,11 +196,8 @@ export const ConversationScreen: React.FC<ConversationScreenProps> = ({
 
       {/* Status bar */}
       <Box justifyContent="space-between" padding={1}>
-        <Text color={theme.colors.textSecondary}>
+        <Text color="textSecondary">
           {messages.length} messages
-        </Text>
-        <Text color={theme.colors.textSecondary}>
-          Press Esc for help
         </Text>
       </Box>
     </Box>

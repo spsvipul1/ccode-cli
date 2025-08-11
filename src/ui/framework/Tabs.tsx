@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Box, Text, useInput } from 'ink';
+import { useInput } from 'ink';
+import { Box } from './Box.js';
+import { Text } from './Text.js';
 
 interface Tab {
   id: string;
@@ -10,24 +12,15 @@ interface Tab {
 
 interface TabsProps {
   tabs: Tab[];
-  activeColor?: string;
-  inactiveColor?: string;
-  borderColor?: string;
   onChange?: (tabId: string) => void;
 }
 
-export const Tabs: React.FC<TabsProps> = ({
-  tabs,
-  activeColor = 'blue',
-  inactiveColor = 'gray',
-  borderColor = 'gray',
-  onChange
-}) => {
+export const Tabs: React.FC<TabsProps> = ({ tabs, onChange }) => {
   const [activeTab, setActiveTab] = useState(tabs[0]?.id || '');
 
   useInput((input, key) => {
     const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
-    
+
     if (key.leftArrow && currentIndex > 0) {
       const newTab = tabs[currentIndex - 1];
       if (!newTab.disabled) {
@@ -47,7 +40,6 @@ export const Tabs: React.FC<TabsProps> = ({
 
   return (
     <Box flexDirection="column">
-      {/* Tab headers */}
       <Box>
         {tabs.map((tab, index) => (
           <React.Fragment key={tab.id}>
@@ -55,39 +47,30 @@ export const Tabs: React.FC<TabsProps> = ({
               paddingX={2}
               paddingY={0}
               borderStyle="round"
-              borderColor={tab.id === activeTab ? activeColor : 'transparent'}
+              borderColor={tab.id === activeTab ? 'primary' : 'transparent'}
             >
-              <Text 
-                color={
-                  tab.disabled ? 'gray' : 
-                  tab.id === activeTab ? activeColor : inactiveColor
-                }
+              <Text
+                color={tab.disabled ? 'textSecondary' : tab.id === activeTab ? 'primary' : 'textSecondary'}
                 bold={tab.id === activeTab}
                 dimColor={tab.disabled}
               >
                 {tab.label}
               </Text>
             </Box>
-            {index < tabs.length - 1 && <Text color={borderColor}> │ </Text>}
+            {index < tabs.length - 1 && <Text color="border"> │ </Text>}
           </React.Fragment>
         ))}
       </Box>
-
-      {/* Tab content border */}
       <Box>
-        <Text color={borderColor}>
+        <Text color="border">
           {'─'.repeat(Math.max(60, tabs.reduce((acc, tab) => acc + tab.label.length + 4, 0)))}
         </Text>
       </Box>
-
-      {/* Tab content */}
       <Box padding={1} flexGrow={1}>
         {activeTabContent}
       </Box>
-
-      {/* Help text */}
       <Box>
-        <Text color="gray" dimColor>
+        <Text color="textSecondary" dimColor>
           Use ←→ to switch tabs
         </Text>
       </Box>

@@ -1,33 +1,33 @@
 import React, { useState } from 'react';
-import { Box, Text } from 'ink';
-import { ThemeConfig, THEMES } from '../themes.js';
-import { SelectInput, Tabs, Table } from '../components/index.js';
+import { Box, Text, SelectInput, Tabs } from '../framework/index.js';
+import { Table } from '../components/index.js';
+import { themes } from '../themes/index.js';
+import { useTheme } from '../themeContext.js';
 
 interface ConfigScreenProps {
-  theme: ThemeConfig;
   config: any;
   onConfigChange: (key: string, value: any) => void;
   onBack: () => void;
 }
 
 export const ConfigScreen: React.FC<ConfigScreenProps> = ({
-  theme,
   config,
   onConfigChange,
   onBack
 }) => {
+  const theme = useTheme();
   const [activeTab, setActiveTab] = useState('general');
 
-  const themeOptions = Object.keys(THEMES).map(key => ({
-    label: THEMES[key].name,
+  const themeOptions = Object.keys(themes).map(key => ({
+    label: themes[key].name,
     value: key,
-    description: `${THEMES[key].accessibility.colorBlind ? 'Colorblind-friendly' : 'Standard'} theme`
+    description: `${themes[key].accessibility.colorBlind ? 'Colorblind-friendly' : 'Standard'} theme`
   }));
 
   const modelOptions = [
     { label: 'Claude 3.5 Sonnet', value: 'claude-3-5-sonnet-20241022', description: 'Latest and most capable' },
     { label: 'Claude 3.5 Haiku', value: 'claude-3-5-haiku-20241022', description: 'Fast and efficient' },
-    { label: 'GPT-4o', value: 'gpt-4o', description: 'OpenAI\'s latest' },
+    { label: 'GPT-4o', value: 'gpt-4o', description: "OpenAI's latest" },
     { label: 'GPT-4o Mini', value: 'gpt-4o-mini', description: 'Fast and cost-effective' }
   ];
 
@@ -45,33 +45,30 @@ export const ConfigScreen: React.FC<ConfigScreenProps> = ({
       content: (
         <Box flexDirection="column">
           <Box marginBottom={1}>
-            <Text color={theme.colors.primary} bold>General Settings</Text>
+            <Text color="primary" bold>General Settings</Text>
           </Box>
-          
+
           <Box marginBottom={2}>
-            <Text color={theme.colors.text} bold>Theme:</Text>
+            <Text color="text" bold>Theme:</Text>
             <SelectInput
               options={themeOptions}
               onSelect={(value) => onConfigChange('theme', value)}
-              selectedColor={theme.colors.primary}
             />
           </Box>
 
           <Box marginBottom={2}>
-            <Text color={theme.colors.text} bold>LLM Provider:</Text>
+            <Text color="text" bold>LLM Provider:</Text>
             <SelectInput
               options={providerOptions}
               onSelect={(value) => onConfigChange('llm.provider', value)}
-              selectedColor={theme.colors.primary}
             />
           </Box>
 
           <Box marginBottom={2}>
-            <Text color={theme.colors.text} bold>Default Model:</Text>
+            <Text color="text" bold>Default Model:</Text>
             <SelectInput
               options={modelOptions}
               onSelect={(value) => onConfigChange('llm.model', value)}
-              selectedColor={theme.colors.primary}
             />
           </Box>
         </Box>
@@ -83,9 +80,9 @@ export const ConfigScreen: React.FC<ConfigScreenProps> = ({
       content: (
         <Box flexDirection="column">
           <Box marginBottom={1}>
-            <Text color={theme.colors.primary} bold>Permission Settings</Text>
+            <Text color="primary" bold>Permission Settings</Text>
           </Box>
-          
+
           <Table
             columns={[
               { key: 'tool', title: 'Tool', width: 15 },
@@ -103,13 +100,13 @@ export const ConfigScreen: React.FC<ConfigScreenProps> = ({
           />
 
           <Box marginTop={2}>
-            <Text color={theme.colors.info}>
+            <Text color="info">
               • allow: Execute without prompting
             </Text>
-            <Text color={theme.colors.warning}>
+            <Text color="warning">
               • prompt: Ask for confirmation
             </Text>
-            <Text color={theme.colors.error}>
+            <Text color="error">
               • deny: Block execution
             </Text>
           </Box>
@@ -122,36 +119,36 @@ export const ConfigScreen: React.FC<ConfigScreenProps> = ({
       content: (
         <Box flexDirection="column">
           <Box marginBottom={1}>
-            <Text color={theme.colors.primary} bold>Advanced Settings</Text>
+            <Text color="primary" bold>Advanced Settings</Text>
           </Box>
-          
+
           <Box marginBottom={1}>
-            <Text color={theme.colors.text}>
-              Max Tokens: <Text color={theme.colors.info}>{config.maxTokens || 4096}</Text>
+            <Text color="text">
+              Max Tokens: <Text color="info">{config.maxTokens || 4096}</Text>
             </Text>
           </Box>
 
           <Box marginBottom={1}>
-            <Text color={theme.colors.text}>
-              Temperature: <Text color={theme.colors.info}>{config.temperature || 0.7}</Text>
+            <Text color="text">
+              Temperature: <Text color="info">{config.temperature || 0.7}</Text>
             </Text>
           </Box>
 
           <Box marginBottom={1}>
-            <Text color={theme.colors.text}>
-              Auto-compact: <Text color={theme.colors.success}>{config.autoCompact ? 'Enabled' : 'Disabled'}</Text>
+            <Text color="text">
+              Auto-compact: <Text color="success">{config.autoCompact ? 'Enabled' : 'Disabled'}</Text>
             </Text>
           </Box>
 
           <Box marginBottom={1}>
-            <Text color={theme.colors.text}>
-              Telemetry: <Text color={theme.colors.success}>{config.telemetry ? 'Enabled' : 'Disabled'}</Text>
+            <Text color="text">
+              Telemetry: <Text color="success">{config.telemetry ? 'Enabled' : 'Disabled'}</Text>
             </Text>
           </Box>
 
-          <Box marginTop={2} padding={1} borderStyle="round" borderColor={theme.colors.warning}>
-            <Text color={theme.colors.warning} bold>⚠️ Warning</Text>
-            <Text color={theme.colors.text}>
+          <Box marginTop={2} padding={1} borderStyle="round" borderColor="warning">
+            <Text color="warning" bold>⚠️ Warning</Text>
+            <Text color="text">
               Changing advanced settings may affect performance and functionality.
             </Text>
           </Box>
@@ -162,32 +159,7 @@ export const ConfigScreen: React.FC<ConfigScreenProps> = ({
 
   return (
     <Box flexDirection="column" height="100%">
-      {/* Header */}
-      <Box borderStyle="round" borderColor={theme.colors.border} padding={1} marginBottom={1}>
-        <Text color={theme.colors.primary} bold>Configuration</Text>
-        <Box flexGrow={1} justifyContent="flex-end">
-          <Text color={theme.colors.textSecondary}>Press Esc to go back</Text>
-        </Box>
-      </Box>
-
-      {/* Tabs */}
-      <Tabs
-        tabs={configTabs}
-        activeColor={theme.colors.primary}
-        inactiveColor={theme.colors.textSecondary}
-        borderColor={theme.colors.border}
-        onChange={setActiveTab}
-      />
-
-      {/* Footer */}
-      <Box justifyContent="space-between" padding={1} marginTop={1}>
-        <Text color={theme.colors.textSecondary}>
-          Use ←→ to navigate tabs, ↑↓ to select options
-        </Text>
-        <Text color={theme.colors.textSecondary}>
-          Changes are saved automatically
-        </Text>
-      </Box>
+      <Tabs tabs={configTabs} onChange={setActiveTab} />
     </Box>
   );
 };

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Text } from 'ink';
+import { Box } from './Box.js';
+import { Text } from './Text.js';
 
 interface ProgressBarProps {
   value: number; // 0-100
@@ -12,7 +13,7 @@ interface ProgressBarProps {
 export const ProgressBar: React.FC<ProgressBarProps> = ({
   value,
   label,
-  color = 'blue',
+  color = 'primary',
   showPercentage = true,
   width = 40
 }) => {
@@ -28,7 +29,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
       {label && <Text>{label}</Text>}
       <Box>
         <Text color={color}>{filled}</Text>
-        <Text color="gray">{empty}</Text>
+        <Text color="textSecondary">{empty}</Text>
         {showPercentage && (
           <Text> {clampedValue.toFixed(1)}%</Text>
         )}

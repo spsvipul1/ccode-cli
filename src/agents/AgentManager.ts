@@ -1,6 +1,6 @@
 import { promises as fs } from 'fs';
 import { join, dirname } from 'path';
-import { getAgentColor } from '../ui/themes.js';
+import { getAgentColor } from '../ui/themes/index.js';
 
 export interface AgentDefinition {
   identifier: string;
